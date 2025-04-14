@@ -8,11 +8,13 @@
 
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
-#include "mpu6050.h"
 
 const int I2C_CHIP_ADDRESS = 0x68;
 const int I2C_SDA_GPIO = 20;
 const int I2C_SCL_GPIO = 21;
+
+#define BMP280_CHIP_ADDRESS 0x76   // Endereço I²C padrão do BMP280
+#define BMP280_ID_REG 0xD0         // Registrador de ID do BMP280
 
 void i2c_task(void *p) {
     i2c_init(i2c_default, 400 * 1000);
@@ -25,6 +27,12 @@ void i2c_task(void *p) {
     // read id chip BMP280
     // printf("BMP280 ID: 0x%X \n", buffer[0]);
 
+    uint8_t buffer[6];
+    uint8_t reg_address = BMP280_ID_REG;
+    i2c_write_blocking(i2c_default, BMP280_CHIP_ADDRESS, &reg_address, 1, true);
+    i2c_read_blocking(i2c_default, BMP280_CHIP_ADDRESS, buffer, 1, false);
+    printf("BMP280 ID: 0x%X \n", buffer[0]);
+
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -36,6 +44,5 @@ int main() {
     xTaskCreate(i2c_task, "i2c task", 4095, NULL, 1, NULL);
     vTaskStartScheduler();
 
-    while (true) {
-    }
+    while (true) { }
 }
