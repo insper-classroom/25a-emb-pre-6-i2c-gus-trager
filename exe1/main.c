@@ -31,6 +31,11 @@ void i2c_task(void *p) {
     // TODO
     // Configure o acc para operar em 4G
 
+    // Configura o acelerômetro para operar em ±4g
+    buf_write[0] = MPUREG_ACCEL_CONFIG;  // Endereço do registrador ACCEL_CONFIG (0x1C)
+    buf_write[1] = 0x08;                // 0x08 configura AFS_SEL = 1 para ±4g
+    i2c_write_blocking(i2c_default, I2C_CHIP_ADDRESS, buf_write, 2, false);
+
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(200));
     }
